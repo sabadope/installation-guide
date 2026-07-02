@@ -1,0 +1,561 @@
+# 🚀 Full-Stack Next.js + Supabase + Capacitor Setup Guide
+
+> A complete Standard Operating Procedure (SOP) for creating a production-ready full-stack web and Android application.
+
+---
+
+# 📚 Tech Stack
+
+This project is built using the following technologies:
+
+* **Next.js 16**
+* **React 19**
+* **TypeScript**
+* **Tailwind CSS v4**
+* **shadcn/ui**
+* **Supabase**
+* **Capacitor (Android)**
+* **React Query**
+* **Zustand**
+* **React Hook Form**
+* **Zod**
+* **Axios**
+* **Motion**
+* **Lucide Icons**
+
+---
+
+# 📋 Prerequisites
+
+Install the following software before starting:
+
+* Node.js (Latest LTS)
+* Git
+* Visual Studio Code
+* Android Studio *(Optional for Android Development)*
+
+Verify your installation:
+
+```bash
+node -v
+npm -v
+git --version
+```
+
+---
+
+# Phase 1 — Create a GitHub Repository
+
+1. Create a new GitHub repository.
+2. Add a LICENSE (Recommended).
+3. Clone the repository.
+
+```bash
+git clone https://github.com/<username>/<repository>.git
+cd <repository>
+```
+
+---
+
+# Phase 2 — Create the Next.js Project
+
+Inside the project folder:
+
+```bash
+npx create-next-app@latest .
+```
+
+Choose:
+
+```text
+✔ Install create-next-app → Yes
+✔ Use recommended Next.js defaults → Yes
+```
+
+Start the development server:
+
+```bash
+npm run dev
+```
+
+Visit:
+
+```
+http://localhost:3000
+```
+
+If everything works, stop the server.
+
+```bash
+CTRL + C
+```
+
+---
+
+# Phase 3 — Initialize shadcn/ui
+
+```bash
+npx shadcn@latest init
+```
+
+Choose:
+
+```text
+Component Library:
+✔ Radix
+
+Preset:
+✔ Nova
+```
+
+---
+
+# Phase 4 — Install UI Components
+
+Install the most commonly used components.
+
+```bash
+npx shadcn@latest add \
+button \
+card \
+input \
+textarea \
+label \
+dialog \
+form \
+dropdown-menu \
+avatar \
+badge \
+sheet \
+tabs \
+table \
+alert \
+alert-dialog \
+navigation-menu \
+separator \
+scroll-area \
+skeleton \
+checkbox \
+switch \
+select \
+popover \
+calendar \
+tooltip \
+sonner
+```
+
+You can always install additional components later.
+
+---
+
+# Phase 5 — Install Project Dependencies
+
+```bash
+npm install \
+@supabase/supabase-js \
+@supabase/ssr \
+@tanstack/react-query \
+react-hook-form \
+@hookform/resolvers \
+zod \
+axios \
+zustand \
+date-fns \
+motion \
+clsx \
+tailwind-merge \
+class-variance-authority \
+next-themes \
+lucide-react \
+react-icons
+```
+
+---
+
+# Phase 6 — Install Capacitor
+
+Install Capacitor early so your application is mobile-ready from the beginning.
+
+```bash
+npm install @capacitor/core
+npm install -D @capacitor/cli
+npm install @capacitor/android
+```
+
+Initialize Capacitor.
+
+```bash
+npx cap init
+```
+
+Example:
+
+```text
+App Name:
+MyApp
+
+App ID:
+com.example.myapp
+```
+
+Create the Android project.
+
+```bash
+npx cap add android
+```
+
+---
+
+# Phase 7 — Configure Capacitor
+
+Edit `capacitor.config.ts`
+
+```ts
+import { CapacitorConfig } from "@capacitor/cli";
+
+const config: CapacitorConfig = {
+  appId: "com.example.myapp",
+  appName: "MyApp",
+  webDir: "out",
+};
+
+export default config;
+```
+
+---
+
+# Phase 8 — Configure Next.js (Static Export Only)
+
+If your application is intended to run entirely as a static site inside Capacitor, update `next.config.ts`:
+
+```ts
+import type { NextConfig } from "next";
+
+const nextConfig: NextConfig = {
+  output: "export",
+  trailingSlash: true,
+  images: {
+    unoptimized: true,
+  },
+};
+
+export default nextConfig;
+```
+
+> **Important:** If your application uses Server-Side Rendering (SSR), Server Actions, or other server-only Next.js features, keep the default Next.js configuration instead of enabling `output: "export"`.
+
+---
+
+# Phase 9 — Create a Supabase Project
+
+Create a new project from your Supabase dashboard.
+
+Wait until the database finishes provisioning.
+
+---
+
+# Phase 10 — Configure Environment Variables
+
+Create:
+
+```text
+.env.local
+```
+
+Add:
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=YOUR_PROJECT_URL
+NEXT_PUBLIC_SUPABASE_ANON_KEY=YOUR_ANON_KEY
+```
+
+Never commit this file.
+
+---
+
+# Phase 11 — Recommended Folder Structure
+
+```text
+app/
+components/
+components/ui/
+hooks/
+lib/
+lib/supabase/
+providers/
+public/
+store/
+styles/
+types/
+utils/
+```
+
+---
+
+# Phase 12 — Configure Supabase
+
+Create:
+
+```text
+lib/supabase/
+```
+
+Files:
+
+```text
+client.ts
+server.ts
+middleware.ts
+```
+
+---
+
+# Phase 13 — Configure React Query
+
+Create:
+
+```text
+providers/
+```
+
+Create:
+
+```text
+QueryProvider.tsx
+```
+
+Wrap your application with `QueryClientProvider`.
+
+---
+
+# Phase 14 — Configure Theme Support
+
+Create:
+
+```text
+providers/ThemeProvider.tsx
+```
+
+Wrap the root layout using `next-themes`.
+
+Supports:
+
+* Light Mode
+* Dark Mode
+* System Theme
+
+---
+
+# Phase 15 — Configure Zustand
+
+Create:
+
+```text
+store/
+```
+
+Example stores:
+
+```text
+auth-store.ts
+theme-store.ts
+```
+
+---
+
+# Phase 16 — Configure Forms
+
+Use:
+
+* React Hook Form
+* Zod
+
+Benefits:
+
+* Type-safe validation
+* Better developer experience
+* Cleaner form handling
+
+---
+
+# Phase 17 — Start Development
+
+Recommended order:
+
+1. Authentication
+2. Database Design
+3. Dashboard Layout
+4. Navigation
+5. CRUD Features
+6. API Integration
+7. Settings
+8. Mobile Responsiveness
+9. Performance Optimization
+10. Testing
+
+---
+
+# Phase 18 — Production Build
+
+```bash
+npm run build
+```
+
+If using a static export, the production files are generated in the `out/` directory.
+
+---
+
+# Phase 19 — Sync Capacitor
+
+Whenever you update the web application:
+
+```bash
+npx cap sync
+```
+
+---
+
+# Phase 20 — Open Android Studio
+
+```bash
+npx cap open android
+```
+
+Run your application on:
+
+* Android Emulator
+* Physical Android Device
+
+---
+
+# Phase 21 — Generate APK / AAB
+
+Inside Android Studio:
+
+```text
+Build
+└── Generate Signed Bundle / APK
+```
+
+Choose:
+
+* APK (Testing)
+* AAB (Google Play Release)
+
+---
+
+# Phase 22 — Deploy the Web Application
+
+Choose your preferred hosting provider:
+
+* Vercel
+* Netlify
+* Firebase Hosting
+* Cloudflare Pages
+* Self-Hosted Server
+
+---
+
+# Phase 23 — Git Workflow
+
+Initial commit:
+
+```bash
+git add .
+git commit -m "Initial project setup"
+git push origin main
+```
+
+---
+
+# 🔄 Daily Development Workflow
+
+Start your day:
+
+```bash
+git pull
+npm install
+npm run dev
+```
+
+Before testing Android:
+
+```bash
+npm run build
+npx cap sync
+npx cap open android
+```
+
+Commit your work:
+
+```bash
+git add .
+git commit -m "Describe completed feature"
+git push
+```
+
+---
+
+# 📁 Recommended Project Structure
+
+```text
+project/
+│
+├── android/
+├── app/
+├── components/
+│   └── ui/
+├── hooks/
+├── lib/
+│   └── supabase/
+├── providers/
+├── public/
+├── store/
+├── styles/
+├── types/
+├── utils/
+│
+├── capacitor.config.ts
+├── components.json
+├── next.config.ts
+├── package.json
+├── tsconfig.json
+└── .env.local
+```
+
+---
+
+# ✅ Project Setup Checklist
+
+* [ ] Install Node.js
+* [ ] Install Git
+* [ ] Install VS Code
+* [ ] Create GitHub Repository
+* [ ] Create Next.js Project
+* [ ] Initialize shadcn/ui
+* [ ] Install UI Components
+* [ ] Install Dependencies
+* [ ] Install Capacitor
+* [ ] Initialize Capacitor
+* [ ] Add Android Platform
+* [ ] Configure Capacitor
+* [ ] Create Supabase Project
+* [ ] Configure Environment Variables
+* [ ] Configure Supabase Client
+* [ ] Configure React Query
+* [ ] Configure Theme Provider
+* [ ] Configure Zustand
+* [ ] Configure Forms
+* [ ] Build the Application
+* [ ] Test on Android
+* [ ] Deploy the Web Application
+* [ ] Generate APK/AAB
+* [ ] Push Final Changes to GitHub
+
+---
+
+## 🎉 Congratulations!
+
+Your project is now configured with a scalable, production-ready architecture for both web and Android development.
+
+Happy coding! 🚀
