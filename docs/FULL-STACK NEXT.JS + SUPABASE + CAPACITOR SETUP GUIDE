@@ -1,6 +1,7 @@
 # 🚀 Full-Stack Next.js + Supabase + Capacitor Setup Guide
 
 > A complete Standard Operating Procedure (SOP) for creating a production-ready full-stack web and Android application.
+> **Last verified:** July 2026
 
 ---
 
@@ -8,13 +9,13 @@
 
 This project is built using the following technologies:
 
-* **Next.js 16**
-* **React 19**
+* **Next.js 16** (currently 16.2.x — Turbopack is the default bundler)
+* **React 19** (19.2)
 * **TypeScript**
 * **Tailwind CSS v4**
-* **shadcn/ui**
+* **shadcn/ui** (CLI v4)
 * **Supabase**
-* **Capacitor (Android)**
+* **Capacitor 8** (Android)
 * **React Query**
 * **Zustand**
 * **React Hook Form**
@@ -29,10 +30,10 @@ This project is built using the following technologies:
 
 Install the following software before starting:
 
-* Node.js (Latest LTS)
+* **Node.js 20.9+** — Next.js 16 will refuse to start on Node 18. Node 22 LTS is recommended and is also the minimum required by Capacitor.
 * Git
 * Visual Studio Code
-* Android Studio *(Optional for Android Development)*
+* Android Studio **Otter (2025.2.1) or newer** *(required if you plan to build for Android — Capacitor 8 will not work correctly on older Android Studio releases)*
 
 Verify your installation:
 
@@ -41,6 +42,8 @@ node -v
 npm -v
 git --version
 ```
+
+> If `node -v` prints anything below `v20.9.0`, install Node 22 LTS first (e.g. via `nvm install 22 && nvm use 22`).
 
 ---
 
@@ -65,11 +68,15 @@ Inside the project folder:
 npx create-next-app@latest .
 ```
 
-Choose:
+This pulls the current stable Next.js 16 generator. Recommended answers to the prompts:
 
 ```text
-✔ Install create-next-app → Yes
-✔ Use recommended Next.js defaults → Yes
+✔ TypeScript → Yes
+✔ ESLint → Yes
+✔ Tailwind CSS → Yes
+✔ App Router → Yes
+✔ Turbopack → Yes (this is the default in Next.js 16)
+✔ Import alias (@/*) → Yes
 ```
 
 Start the development server:
@@ -94,87 +101,62 @@ CTRL + C
 
 # Phase 3 — Initialize shadcn/ui
 
+The shadcn CLI is now on **v4**, which scaffolds via `--template`, `--base` (component primitives), and `--preset` (design tokens) flags rather than the old fully-interactive-only flow.
+
 ```bash
 npx shadcn@latest init
 ```
 
-Choose:
+When prompted, choose:
 
 ```text
-Component Library:
+Template:
+✔ Next.js
+
+Base (primitives):
 ✔ Radix
 
 Preset:
 ✔ Nova
 ```
 
+Equivalent non-interactive command:
+
+```bash
+npx shadcn@latest init -t next -b radix -p nova
+```
+
+> `npx shadcn@latest init -d` uses the CLI's own defaults (`--template=next --preset=nova`) if you don't need to pin the base explicitly.
+
 ---
 
 # Phase 4 — Install UI Components
 
-Install the most commonly used components.
+Install the most commonly used components:
 
 ```bash
-npx shadcn@latest add \
-button \
-card \
-input \
-textarea \
-label \
-dialog \
-form \
-dropdown-menu \
-avatar \
-badge \
-sheet \
-tabs \
-table \
-alert \
-alert-dialog \
-navigation-menu \
-separator \
-scroll-area \
-skeleton \
-checkbox \
-switch \
-select \
-popover \
-calendar \
-tooltip \
-sonner
+npx shadcn@latest add button card input textarea label dialog form dropdown-menu avatar badge sheet tabs table alert alert-dialog navigation-menu separator scroll-area skeleton checkbox switch select popover calendar tooltip sonner
 ```
 
-You can always install additional components later.
+You can always install additional components later, and you can preview changes before they touch disk with:
+
+```bash
+npx shadcn@latest add <component> --dry-run
+```
 
 ---
 
 # Phase 5 — Install Project Dependencies
 
 ```bash
-npm install \
-@supabase/supabase-js \
-@supabase/ssr \
-@tanstack/react-query \
-react-hook-form \
-@hookform/resolvers \
-zod \
-axios \
-zustand \
-date-fns \
-motion \
-clsx \
-tailwind-merge \
-class-variance-authority \
-next-themes \
-lucide-react \
-react-icons
+npm install @supabase/supabase-js @supabase/ssr @tanstack/react-query react-hook-form @hookform/resolvers zod axios zustand date-fns motion clsx tailwind-merge class-variance-authority next-themes lucide-react react-icons
 ```
 
 ---
 
 # Phase 6 — Install Capacitor
 
-Install Capacitor early so your application is mobile-ready from the beginning.
+Install Capacitor early so your application is mobile-ready from the beginning. This installs the current Capacitor 8 line.
 
 ```bash
 npm install @capacitor/core
@@ -182,7 +164,13 @@ npm install -D @capacitor/cli
 npm install @capacitor/android
 ```
 
-Initialize Capacitor.
+Verify the installation:
+
+```bash
+npx cap --version
+```
+
+Initialize Capacitor:
 
 ```bash
 npx cap init
@@ -198,17 +186,23 @@ App ID:
 com.example.myapp
 ```
 
-Create the Android project.
+This generates the `capacitor.config.ts` configuration file.
+
+> **Note:** `webDir` must point to the folder containing your production web build. If you are using a static export (`output: "export"`), Next.js generates this folder as `out/` after running `npm run build`. If your app relies on SSR/Server Actions, see Phase 8 — you cannot statically export it, and `webDir` should instead point at wherever your deployed web app is served from (Capacitor will load it as a remote URL rather than bundling it locally).
+
+Create the Android project:
 
 ```bash
 npx cap add android
 ```
 
+> Capacitor 8 requires **Android Studio Otter (2025.2.1)+** and **JDK 21**. If your Android Studio is older, run the AGP Upgrade Assistant (`Tools → AGP Upgrade Assistant`) before opening the generated `android/` project.
+
 ---
 
 # Phase 7 — Configure Capacitor
 
-Edit `capacitor.config.ts`
+Edit `capacitor.config.ts`:
 
 ```ts
 import { CapacitorConfig } from "@capacitor/cli";
@@ -242,7 +236,7 @@ const nextConfig: NextConfig = {
 export default nextConfig;
 ```
 
-> **Important:** If your application uses Server-Side Rendering (SSR), Server Actions, or other server-only Next.js features, keep the default Next.js configuration instead of enabling `output: "export"`.
+> **Important:** If your application uses Server-Side Rendering (SSR), Server Actions, Route Handlers that need a live server, or Cache Components, keep the default Next.js configuration instead of enabling `output: "export"` — these features are incompatible with static export and Capacitor would need to load the app from a deployed URL instead of bundling it locally.
 
 ---
 
@@ -307,6 +301,8 @@ client.ts
 server.ts
 middleware.ts
 ```
+
+> **Breaking change in Next.js 16:** the root-level `middleware.ts` convention has been renamed to **`proxy.ts`**. If you're wiring Supabase session refresh logic into request-level middleware, your project's *root* file must be named `proxy.ts` (the helper file inside `lib/supabase/middleware.ts` can keep its own name — it's just a regular module, not the Next.js convention file). Using the old `middleware.ts` name at the project root will not run in Next.js 16. Run `npx @next/codemod@latest upgrade` if migrating an existing project, or name the file correctly from the start on a fresh Next.js 16 project.
 
 ---
 
@@ -518,6 +514,7 @@ project/
 ├── capacitor.config.ts
 ├── components.json
 ├── next.config.ts
+├── proxy.ts          # Next.js 16 rename of middleware.ts (root-level only)
 ├── package.json
 ├── tsconfig.json
 └── .env.local
@@ -527,30 +524,39 @@ project/
 
 # ✅ Project Setup Checklist
 
-* [ ] Install Node.js
+* [ ] Install Node.js 20.9+ (Node 22 LTS recommended)
 * [ ] Install Git
 * [ ] Install VS Code
 * [ ] Create GitHub Repository
 * [ ] Create Next.js Project
-* [ ] Initialize shadcn/ui
+* [ ] Initialize shadcn/ui (CLI v4)
 * [ ] Install UI Components
 * [ ] Install Dependencies
-* [ ] Install Capacitor
+* [ ] Install Capacitor 8
 * [ ] Initialize Capacitor
 * [ ] Add Android Platform
 * [ ] Configure Capacitor
 * [ ] Create Supabase Project
 * [ ] Configure Environment Variables
-* [ ] Configure Supabase Client
+* [ ] Configure Supabase Client (remember `proxy.ts`, not `middleware.ts`, at the project root)
 * [ ] Configure React Query
 * [ ] Configure Theme Provider
 * [ ] Configure Zustand
 * [ ] Configure Forms
 * [ ] Build the Application
-* [ ] Test on Android
+* [ ] Test on Android (Android Studio Otter+, JDK 21)
 * [ ] Deploy the Web Application
 * [ ] Generate APK/AAB
 * [ ] Push Final Changes to GitHub
+
+---
+
+## 📝 What changed from the original SOP
+
+* **Next.js:** 16.x is current stable (16.2.x as of mid-2026). Turbopack is now the default bundler, and Node.js 20.9+ is a hard requirement.
+* **Next.js middleware rename:** the root convention file is now `proxy.ts`, not `middleware.ts`. This directly affects the Supabase SSR session-refresh setup in Phase 12.
+* **shadcn/ui:** CLI v4 replaced the older fully-interactive init flow with `--template` / `--base` / `--preset` flags; component library selection is now `--base radix` (or `base`) rather than a bare "Component Library" prompt.
+* **Capacitor:** the current major version is Capacitor 8, which raises the minimum Android Studio version to Otter (2025.2.1) and requires JDK 21 — worth calling out explicitly since older Capacitor guides assume Android Studio Ladybug/JDK 17.
 
 ---
 
