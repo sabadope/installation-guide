@@ -287,13 +287,6 @@ const config: CapacitorConfig = {
 export default config;
 ```
 
-```
-ETO MUNA NEXT -
-
-npm install -D typescript
-
-```
-
 Change `appId` and `appName` to match what you chose in Step 6.2. **The important part is `webDir: 'out'`** — this must say `out`, not `public` (which is what Capacitor puts there by default, and it's wrong).
 
 ### Step 6.4 — Add the Android Platform
